@@ -1,5 +1,10 @@
 import { env } from "./env.js";
 
+type MsGraphUser = {
+  id: string;
+  displayName: string;
+}
+
 export function msGraph() {
   let accessToken: string | null = null;
   let tokenExpiration: number | null = null;
@@ -37,12 +42,28 @@ export function msGraph() {
   }
 
   return {
-    getUsers: function* () {
-      let number = 0;
+    getUsers: async function* (pageSize: number = 1): AsyncGenerator<MsGraphUser> {
+      const token = await getAccessToken();
+      let url = `https://graph.microsoft.com/v1.0/users?$top=${pageSize}&$select=id,displayName`;
 
-      while (true) {
-        yield number++;
-      }
+      do
+      {
+        const usersResponse = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (usersResponse.ok === false) {
+          throw new Error("Failed to fetch users");
+        }
+
+        const usersData = await usersResponse.json();
+
+        url = usersData["@odata.nextLink"];
+
+        yield* usersData.value;
+      } while(url);
     },
   };
 }

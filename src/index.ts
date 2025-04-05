@@ -1,1 +1,7 @@
-console.log('Hello pagination rabbit hole!');
+import { msGraph } from "./msgraph.js";
+
+const graph = msGraph();
+
+for (const user of graph.getUsers()) {
+  console.log("user", user);
+}

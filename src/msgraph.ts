@@ -61,7 +61,10 @@ export function msGraph() {
         const usersData = await usersResponse.json();
 
         url = usersData["@odata.nextLink"];
-
+        
+        // delegate from this generator
+        // to the iterable that is 
+        // the array of users
         yield* usersData.value;
       } while(url);
     },
